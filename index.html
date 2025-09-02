@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSIS Exam — BPM Deep Understanding</title>
+<style>
+  body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f6f8fb;color:#0f172a;}
+  header{background:#fff;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,.1);}
+  header h1{margin:0;font-size:1.2rem;} 
+  header .timer{margin-left:auto;padding:8px 12px;background:#ffe5e5;color:#b00020;font-weight:700;border-radius:50px;}
+  main{max-width:900px;margin:20px auto;padding:12px;}
+  .card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.05);margin-bottom:12px;}
+  label{display:block;margin:8px 0 4px;font-weight:600;}
+  select,input[type=text]{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;}
+  button{background:#1f6feb;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;}
+  button.secondary{background:#eef2ff;color:#1f6feb;}
+  .hidden{display:none!important;}
+  .muted{color:#6b7280;font-size:.9rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BSIS Exam — Business Process Management (Deep Understanding)(Reminders : Please Type your answer in every word Starts Capital Letters and please dont put any extension of your answer only the correct answer will be consider in the codes so you have to listen carefully the video</h1>
+  <div class="timer" id="timer">30:00</div>
+</header>
+
+<main>
+
+  <!-- Access Code Section -->
+  <section class="card" id="accessCodeSection">
+    <label>Enter Exam Access Code:</label>
+    <input type="text" id="examCodeInput" placeholder="Enter code here">
+    <button type="button" id="examCodeBtn">Start Exam</button>
+    <p id="codeError" class="muted" style="color:red; display:none;">Incorrect code. Please try again.</p>
+  </section>
+
+  <form id="examForm" class="card hidden" autocomplete="off">
+    <label>Student Name</label>
+    <input type="text" id="studentName" name="studentName">
+
+    <hr>
+
+    <!-- Identification Questions -->
+    <label>1. The standard notation used to model business processes is called ________.</label>
+    <input type="text" name="q1">
+
+    <label>2. A diagram that maps Suppliers, Inputs, Processes, Outputs, and Customers is called ________.</label>
+    <input type="text" name="q2">
+
+    <label>3. A methodology focused on eliminating waste and non-value-added activities is called ________.</label>
+    <input type="text" name="q3">
+
+    <label>4. Extracting actual process flows from system event logs is called ________.</label>
+    <input type="text" name="q4">
+
+    <label>5. The metric that measures the time to complete one full process cycle is called ________.</label>
+    <input type="text" name="q5">
+
+    <hr>
+
+    <!-- Multiple Choice Questions -->
+    <label>6. Which diagram is most used to visualize concurrency and synchronization in BPM?</label>
+    <select name="q6">
+      <option value="">Select answer</option>
+      <option value="A">Gantt Chart</option>
+      <option value="B">Petri Nets</option>
+      <option value="C">Pareto Chart</option>
+      <option value="D">Histogram</option>
+    </select>
+
+    <label>7. Which BPM discipline involves creating structured representations of processes?</label>
+    <select name="q7">
+      <option value="">Select answer</option>
+      <option value="A">Process Optimization</option>
+      <option value="B">Process Design</option>
+      <option value="C">Process Modeling</option>
+      <option value="D">Process Execution</option>
+    </select>
+
+    <label>8. Process mining is mainly used to:</label>
+    <select name="q8">
+      <option value="">Select answer</option>
+      <option value="A">Design new processes</option>
+      <option value="B">Analyze logs to discover actual flows</option>
+      <option value="C">Automate workflows</option>
+      <option value="D">Simulate customer behavior</option>
+    </select>
+
+    <label>9. Which of these is NOT included in process optimization?</label>
+    <select name="q9">
+      <option value="">Select answer</option>
+      <option value="A">Identifying bottlenecks</option>
+      <option value="B">Retrieving performance data</option>
+      <option value="C">Applying enhancements</option>
+      <option value="D">Ignoring monitoring metrics</option>
+    </select>
+
+    <label>10. Which set correctly represents the BPM lifecycle phases?</label>
+    <select name="q10">
+      <option value="">Select answer</option>
+      <option value="A">Planning, Selling, Marketing</option>
+      <option value="B">Design, Modeling, Execution, Monitoring, Optimization</option>
+      <option value="C">Hiring, Training, Evaluating</option>
+      <option value="D">Sales, Finance, IT</option>
+    </select>
+
+    <div style="margin-top:14px;display:flex;gap:8px;align-items:center">
+      <button type="submit" id="submitBtn">Submit Answers</button>
+      <button type="button" class="secondary" id="downloadBtn" disabled>Download Answers (.txt)</button>
+      <div style="margin-left:auto" class="muted">Auto-score enabled — Total = 10 pts</div>
+    </div>
+  </form>
+
+  <section id="result" class="card hidden">
+    <h3>✅ Answers Submitted</h3>
+    <p class="muted">Show this screen to your instructor or download the answers file.</p>
+    <p><strong>Student:</strong> <span id="resName"></span></p>
+    <p><strong>Time left:</strong> <span id="resTime"></span></p>
+    <p><strong>Auto-score:</strong> <span id="totalScore"></span> / 10</p>
+    <ul id="breakdown"></ul>
+    <pre id="savedAnswers"></pre>
+    <button type="button" id="reopenBtn">Reopen Exam (Password Required)</button>
+  </section>
+</main>
+
+<script>
+// ----------------- SCRIPT -----------------
+const DURATION_MINUTES = 30;
+const form = document.getElementById('examForm');
+const timerEl = document.getElementById('timer');
+const result = document.getElementById('result');
+const resName = document.getElementById('resName');
+const resTime = document.getElementById('resTime');
+const totalScoreEl = document.getElementById('totalScore');
+const breakdownEl = document.getElementById('breakdown');
+const savedAnswers = document.getElementById('savedAnswers');
+const downloadBtn = document.getElementById('downloadBtn');
+
+const accessCodeSection = document.getElementById('accessCodeSection');
+const examCodeInput = document.getElementById('examCodeInput');
+const examCodeBtn = document.getElementById('examCodeBtn');
+const codeError = document.getElementById('codeError');
+const CORRECT_CODE = "BPM-2025-3B"; // Access code
+const REOPEN_PASSWORD = "OPEN2025"; // Password to reopen exam
+
+let endTime = null;
+let timerInterval = null;
+
+// Correct answers
+const correctAnswers = {
+  q1: "Business Process Model And Notation",
+  q2: "Sipoc Diagram",
+  q3: "Lean",
+  q4: "Process Mining",
+  q5: "Cycle Time",
+  q6: "B",
+  q7: "C",
+  q8: "B",
+  q9: "D",
+  q10: "B"
+};
+
+// ---------- Check submission state on load ----------
+window.addEventListener('load', () => {
+  if (localStorage.getItem('examSubmitted') === 'true') {
+    form.classList.add('hidden');
+    accessCodeSection.style.display = 'none';
+    result.classList.remove('hidden');
+  }
+});
+
+// ---------- Start Exam with Access Code ----------
+examCodeBtn.addEventListener('click', () => {
+  const enteredCode = examCodeInput.value.trim();
+  if (enteredCode === CORRECT_CODE) {
+    accessCodeSection.style.display = "none";
+    form.classList.remove('hidden');
+    startTimer();
+  } else {
+    codeError.style.display = "block";
+    examCodeInput.value = "";
+  }
+});
+
+// ---------- Timer Function ----------
+function startTimer() {
+  endTime = Date.now() + DURATION_MINUTES * 60 * 1000;
+  function fmt(ms) {
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    return m + ':' + (s < 10 ? '0' + s : s);
+  }
+  function updateTimer() {
+    const remaining = endTime - Date.now();
+    timerEl.textContent = fmt(remaining);
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      autoSubmit('Time is up');
+    }
+  }
+  timerInterval = setInterval(updateTimer, 300);
+  updateTimer();
+}
+
+// ---------- Auto-score ----------
+function autoScoreAndShow(data, reason) {
+  let total = 0;
+  let breakdown = [];
+  let output = '== BPM Exam ==\nStudent: ' + (data.get('studentName') || '(no name)') + '\nReason: ' + reason + '\n\n';
+
+  for (let i = 1; i <= 10; i++) {
+    let key = 'q' + i;
+    let ans = data.get(key) || '';
+    output += 'Q' + i + ': ' + ans + '\n';
+    let score = 0;
+    if (correctAnswers[key] !== undefined) {
+      score = (ans.trim().toLowerCase() === correctAnswers[key].toLowerCase()) ? 1 : 0;
+    }
+    total += score;
+    breakdown.push({ k: 'Q' + i, v: score + '/1' });
+  }
+
+  form.classList.add('hidden');
+  result.classList.remove('hidden');
+  resName.textContent = data.get('studentName') || '(no name)';
+  resTime.textContent = timerEl.textContent;
+  totalScoreEl.textContent = total + '/10';
+  breakdownEl.innerHTML = '';
+  breakdown.forEach(it => {
+    const li = document.createElement('li');
+    li.textContent = it.k + ': ' + it.v;
+    breakdownEl.appendChild(li);
+  });
+  savedAnswers.textContent = output + '\nTOTAL SCORE: ' + total + '/10';
+  downloadBtn.disabled = false;
+  clearInterval(timerInterval);
+  window.__paOutput = output;
+
+  localStorage.setItem('examSubmitted', 'true');
+}
+
+// ---------- Submit ----------
+form.addEventListener('submit', e => { e.preventDefault(); autoSubmit('Submitted by user'); });
+function autoSubmit(reason) { const data = new FormData(form); if (!data.get('studentName')) data.set('studentName', '(no name)'); autoScoreAndShow(data, reason); }
+
+// ---------- Download ----------
+downloadBtn.addEventListener('click', function () {
+  const blob = new Blob([window.__paOutput || savedAnswers.textContent], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (document.getElementById('studentName').value || 'student') + '_BPM_exam.txt';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+});
+
+// ---------- Anti-copy ----------
+['studentName','q1','q2','q3','q4','q5','q6','q7','q8','q9','q10'].forEach(name => {
+  const el = document.getElementsByName(name)[0];
+  ['paste','copy','cut','contextmenu','selectstart'].forEach(ev => el.addEventListener(ev, e => e.preventDefault()));
+});
+document.addEventListener('contextmenu', e => e.preventDefault());
+window.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey) {
+    if (['c','v','x','s','u','p'].includes(e.key.toLowerCase())) { e.preventDefault(); return false; }
+  }
+  if (e.key==='F12'){ e.preventDefault(); return false; }
+});
+document.querySelectorAll('label,h1,h3,p').forEach(el => el.style.userSelect='none');
+
+// ---------- Auto-reset on leave ----------
+let hasLeftExam = false;
+function resetExamOnLeave() { if (!hasLeftExam) { hasLeftExam = true; form.reset(); alert('You left the exam. All answers have been reset. Timer continues.'); window.scrollTo({ top: 0, behavior: 'instant' }); } }
+document.addEventListener('visibilitychange', () => { if (document.hidden) resetExamOnLeave(); });
+window.addEventListener('blur', resetExamOnLeave);
+
+// ---------- Reopen Exam Button ----------
+const reopenBtn = document.getElementById('reopenBtn');
+reopenBtn.addEventListener('click', () => {
+  let entered = prompt("Enter password to reopen the exam:");
+  if (entered === REOPEN_PASSWORD) {
+    localStorage.removeItem('examSubmitted');
+    form.reset(); 
+    result.classList.add('hidden');
+    form.classList.remove('hidden');
+    startTimer();
+  } else {
+    alert("Incorrect password. Exam cannot be reopened.");
+  }
+});
+</script>
+
+</body>
+</html>
